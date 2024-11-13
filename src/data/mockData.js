@@ -1280,4 +1280,60 @@ export const mockGeographyData = [
     id: "KOR",
     value: 171135,
   },
+
+];
+
+export const mockGPSData = [
+  {
+    deviceID: "FM5300_001",
+    lat: 33.5333,      // Latitude for Ifrane, Morocco
+    lon: -5.1167,      // Longitude for Ifrane, Morocco
+    speed: 40,         // Speed in km/h
+    timestamp: "2023-10-31T10:00:00",
+  },
+  {
+    deviceID: "FM5300_001",
+    lat: 33.5340,      // Slight movement to simulate travel
+    lon: -5.1175,
+    speed: 45,
+    timestamp: "2023-10-31T10:01:00",
+  },
+  {
+    deviceID: "FM5300_001",
+    lat: 33.5350,
+    lon: -5.1185,
+    speed: 50,
+    timestamp: "2023-10-31T10:02:00",
+  },
+  {
+    deviceID: "FM5300_001",
+    lat: 33.5360,
+    lon: -5.1190,
+    speed: 55,
+    timestamp: "2023-10-31T10:03:00",
+  },
+  {
+    deviceID: "FM5300_001",
+    lat: 33.5365,
+    lon: -5.1195,
+    speed: 60,
+    timestamp: "2023-10-31T10:04:00",
+  },
+];
+// mockData.js
+
+export const mockDriversData = [
+  { id: 1, name: "Driver 1", deviceID: "FM5300_001" },
+  { id: 2, name: "Driver 2", deviceID: "FM5300_002" },
+  { id: 3, name: "Driver 3", deviceID: "FM5300_003" },
+  { id: 4, name: "Driver 4", deviceID: "FM5300_001" },
+  // Add more drivers as needed
+];
+
+export const mockDevicesData = [
+  { deviceID: "FM5300_001", status: "active" },
+  { deviceID: "FM5300_002", status: "inactive" },
+  { deviceID: "FM5300_003", status: "active" },
+  { deviceID: "FM5300_004", status: "active" },
+  // Add more devices as needed
 ];
