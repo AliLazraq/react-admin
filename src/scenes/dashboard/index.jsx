@@ -170,22 +170,42 @@ const Dashboard = () => {
             borderRadius: "10px", // Optional: for better visuals
           }}
         >
+          {/* Chart Title */}
+          {/* Chart Title */}
           <Box
-            mt="25px"
+            sx={{
+              display: "flex", // Flexbox to arrange items
+              justifyContent: "space-between", // Space between title and icon
+              alignItems: "center", // Center vertically
+              padding: "10px",
+              backgroundColor: colors.primary[400],
+              color: colors.grey[100],
+              borderRadius: "8px", // Optional: for rounded corners
+            }}
+          >
+            <Typography variant="h6" fontWeight="600">
+              Fuel Logs Overview
+            </Typography>
+            <IconButton>
+              <DownloadOutlinedIcon
+                sx={{
+                  fontSize: "26px",
+                  color: colors.greenAccent[500],
+                }}
+              />
+            </IconButton>
+          </Box>
+
+          <Box
+            mt="0px"
             p="0 30px"
             display="flex"
             justifyContent="space-between"
             alignItems="center"
           >
-            <Box>
-              <IconButton>
-                <DownloadOutlinedIcon
-                  sx={{ fontSize: "26px", color: colors.greenAccent[500] }}
-                />
-              </IconButton>
-            </Box>
+            <Box></Box>
           </Box>
-          <Box height="400px" >
+          <Box height="400px">
             <LineChart isDashboard={true} />
           </Box>
         </Box>
@@ -232,16 +252,37 @@ const Dashboard = () => {
         <Box
           gridColumn="span 4"
           gridRow="span 2"
-          backgroundColor={colors.primary[400]}
+          sx={{
+            backgroundColor: colors.primary[400],
+            borderRadius: "8px",
+            overflow: "hidden",
+            boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+          }}
         >
-          <Typography
-            variant="h5"
-            fontWeight="600"
-            sx={{ padding: "30px 30px 0 30px" }}
+          {/* Chart Title */}
+          <Box
+            sx={{
+              padding: "10px",
+              backgroundColor: colors.primary[400],
+              color: colors.grey[100],
+            }}
           >
-            Sales Quantity
-          </Typography>
-          <Box height="250px" mt="-20px">
+            <Typography variant="h6" fontWeight="600">
+              Distance Traveled
+            </Typography>
+          </Box>
+
+          {/* Chart Container */}
+          <Box
+            sx={{
+              // height: "200px",
+              padding: "15px",
+              //   display: "flex",
+              // justifyContent: "center",
+              // alignItems: "center",
+              // overflow: "hidden",
+            }}
+          >
             <BarChart isDashboard={true} />
           </Box>
         </Box>
@@ -256,7 +297,7 @@ const Dashboard = () => {
             fontWeight="600"
             sx={{ marginBottom: "15px" }}
           >
-            Geography Based Traffic
+            GPS
           </Typography>
           <Box height="200px" width="100%" overflow="hidden">
             {" "}
