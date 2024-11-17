@@ -1,42 +1,77 @@
-import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
+import {
+  Box,
+  Button,
+  IconButton,
+  Typography,
+  useTheme,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
 import { tokens } from "../../theme";
-import { mockTransactions } from "../../data/mockData";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import EmailIcon from "@mui/icons-material/Email";
-import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
-import TrafficIcon from "@mui/icons-material/Traffic";
 import Header from "../../components/Header";
 import LineChart from "../../components/LineChart";
 import GPSMap from "../../components/GPSMap";
 import BarChart from "../../components/BarChart";
-import StatBox from "../../components/StatBox";
-import ProgressCircle from "../../components/ProgressCircle";
 import PieChart from "../../components/PieChart";
+import Odometer from "../../components/Odometer";
+import VehicleCount from "../../components/VehicleCount";
 import { useEffect, useState } from "react";
+import CarModel from "../../components/CarModel";
+import FuelTransactions from "../../components/FuelTransactions";
+import VehicleSelector from "../../components/VehicleSelector";
 
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [driversCount, setDriversCount] = useState(0);
-  const [deviceCount, setDeviceCount] = useState(0);
-  const [averageFuelLevel, setAverageFuelLevel] = useState(0);
-  const [totalDistance, setTotalDistance] = useState(0);
+  const [selectedVehicle, setSelectedVehicle] = useState(""); // State to track the selected vehicle
 
+  // Load the saved vehicle from localStorage on mount
   useEffect(() => {
-    // Fetch or calculate data here. Below are mock examples.
-    setDriversCount(45); // Example: set number of drivers
-    setDeviceCount(12); // Example: set number of devices
-    setAverageFuelLevel(75); // Example: average fuel level (in percentage)
-    setTotalDistance(12843); // Example: total distance (in km)
+    const savedVehicle = localStorage.getItem("selectedVehicle");
+    if (savedVehicle) {
+      setSelectedVehicle(savedVehicle); // Set the saved value as the initial state
+    }
   }, []);
+
+  // Save the selected vehicle to localStorage whenever it changes
+  useEffect(() => {
+    if (selectedVehicle) {
+      localStorage.setItem("selectedVehicle", selectedVehicle);
+    }
+  }, [selectedVehicle]);
 
   return (
     <Box m="20px">
       {/* HEADER */}
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        gap="20px"
+      >
+        {/* Vehicle Selector on the left */}
+        <Box flex="1">
+          <VehicleSelector
+            selectedVehicle={selectedVehicle} // Pass the current selected vehicle
+            setSelectedVehicle={setSelectedVehicle} // Pass the setter function
+            sx={{
+              backgroundColor: colors.blueAccent[700],
+              color: colors.grey[100],
+            }}
+          />
+        </Box>
 
-        <Box>
+        {/* Title in the center */}
+        <Box flex="2" textAlign="center">
+          <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
+        </Box>
+
+        {/* Download Button on the right */}
+        <Box flex="1" textAlign="right">
           <Button
             sx={{
               backgroundColor: colors.blueAccent[700],
@@ -60,7 +95,7 @@ const Dashboard = () => {
         gap="20px"
       >
         {/* ROW 1 */}
-        
+
         {/* Drivers Count */}
         <Box
           gridColumn="span 3"
@@ -69,99 +104,79 @@ const Dashboard = () => {
           alignItems="center"
           justifyContent="space-evenly"
           flexDirection="row"
-          padding="20px"  
+          padding="20px"
         >
           {/* Description on the left */}
-          <Typography variant="h6" color={colors.greenAccent[400]} mb={10}  textAlign="left">
+          <Typography
+            variant="h6"
+            color={colors.greenAccent[400]}
+            mb={10}
+            textAlign="left"
+          >
             Device Status
           </Typography>
 
           {/* Chart on the right */}
-          <Box display="flex" alignItems="center" justifyContent="center" height="120px" width="120px">
-            
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            height="120px"
+            width="120px"
+          >
             <PieChart isDashboard={true} />
           </Box>
         </Box>
-        {/* Device Count */}
+        {/* Vehicle Count */}
         <Box
           gridColumn="span 3"
           backgroundColor={colors.primary[400]}
           display="flex"
           alignItems="center"
-          justifyContent="center"
+          justifyContent="flex-start"
         >
-          <StatBox
-            title={deviceCount}
-            subtitle="Devices Connected"
-            progress={deviceCount / 20} // Example progress calculation
-            increase="+15%" // Example increase calculation
-            icon={<EmailIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
-          />
+          <VehicleCount />
         </Box>
-        
-        {/* Average Fuel Level */}
+
+        {/* Odometer */}
         <Box
           gridColumn="span 3"
           backgroundColor={colors.primary[400]}
           display="flex"
           alignItems="center"
-          justifyContent="center"
+          justifyContent="flex-start"
         >
-          <StatBox
-            title={`${averageFuelLevel}%`}
-            subtitle="Average Fuel Level"
-            progress={averageFuelLevel / 100}
-            increase="-5%" // Example change calculation
-            icon={<TrafficIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
-          />
+          <Odometer selectedVehicle={selectedVehicle} />
         </Box>
-        
+
         {/* Total Distance */}
         <Box
           gridColumn="span 3"
           backgroundColor={colors.primary[400]}
           display="flex"
           alignItems="center"
-          justifyContent="center"
+          justifyContent="flex-start"
         >
-          <StatBox
-            title={`${totalDistance} km`}
-            subtitle="Total Distance"
-            progress={totalDistance / 20000} // Example progress calculation
-            increase="+8%" // Example increase calculation
-            icon={<PointOfSaleIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
-          />
-
-      </Box>
+          <CarModel selectedVehicle={selectedVehicle} />
+        </Box>
         {/* ROW 2 */}
         <Box
           gridColumn="span 8"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
+          sx={{
+            overflow: "auto", // Enable scrolling
+            maxHeight: "400px", // Set a fixed maximum height for the container
+            borderRadius: "10px", // Optional: for better visuals
+          }}
         >
           <Box
             mt="25px"
             p="0 30px"
-            display="flex "
+            display="flex"
             justifyContent="space-between"
             alignItems="center"
           >
-            <Box>
-              <Typography
-                variant="h5"
-                fontWeight="600"
-                color={colors.grey[100]}
-              >
-                Revenue Generated
-              </Typography>
-              <Typography
-                variant="h4"
-                fontWeight="bold"
-                color={colors.greenAccent[500]}
-              >
-                $59,342.32
-              </Typography>
-            </Box>
             <Box>
               <IconButton>
                 <DownloadOutlinedIcon
@@ -170,60 +185,13 @@ const Dashboard = () => {
               </IconButton>
             </Box>
           </Box>
-          <Box height="230px" m="-40px 0 0 0">
+          <Box height="400px" >
             <LineChart isDashboard={true} />
           </Box>
         </Box>
-        <Box
-          gridColumn="span 4"
-          gridRow="span 2"
-          backgroundColor={colors.primary[400]}
-          overflow="auto"
-        >
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            borderBottom={`4px solid ${colors.primary[500]}`}
-            colors={colors.grey[100]}
-            p="15px"
-          >
-            <Typography color={colors.grey[100]} variant="h5" fontWeight="600">
-              Recent Transactions
-            </Typography>
-          </Box>
-          {mockTransactions.map((transaction, i) => (
-            <Box
-              key={`${transaction.txId}-${i}`}
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-              borderBottom={`4px solid ${colors.primary[500]}`}
-              p="15px"
-            >
-              <Box>
-                <Typography
-                  color={colors.greenAccent[500]}
-                  variant="h6"
-                  fontWeight="600"
-                >
-                  {transaction.txId}
-                </Typography>
-                <Typography color={colors.grey[100]}>
-                  {transaction.user}
-                </Typography>
-              </Box>
-              <Box color={colors.grey[100]}>{transaction.date}</Box>
-              <Box
-                backgroundColor={colors.greenAccent[500]}
-                p="5px 10px"
-                borderRadius="4px"
-              >
-                ${transaction.cost}
-              </Box>
-            </Box>
-          ))}
-        </Box>
+
+        {/* Fuel Transactions */}
+        <FuelTransactions selectedVehicle={selectedVehicle} />
 
         {/* ROW 3 */}
         <Box
@@ -240,25 +208,26 @@ const Dashboard = () => {
             flexDirection="column"
             alignItems="center"
             mt="25px"
-            >
-            <ProgressCircle size="125" />
-            
+          >
             {/* Active vs Inactive in one line */}
             <Box display="flex" alignItems="center" sx={{ mt: "15px" }}>
-                <Typography variant="h5" color={colors.greenAccent[500]}>
+              <Typography variant="h5" color={colors.greenAccent[500]}>
                 Active
-                </Typography>
-                <Typography variant="h5" color="#ffffff" sx={{ ml: "5px" }}>
+              </Typography>
+              <Typography variant="h5" color="#ffffff" sx={{ ml: "5px" }}>
                 vs
-                </Typography>
-                <Typography variant="h5" color={colors.blueAccent[500]} sx={{ ml: "5px" }}>
+              </Typography>
+              <Typography
+                variant="h5"
+                color={colors.blueAccent[500]}
+                sx={{ ml: "5px" }}
+              >
                 Inactive
-                </Typography>
+              </Typography>
             </Box>
 
             <Typography>Includes extra misc expenditures and costs</Typography>
-            </Box>
-
+          </Box>
         </Box>
         <Box
           gridColumn="span 4"
@@ -289,8 +258,10 @@ const Dashboard = () => {
           >
             Geography Based Traffic
           </Typography>
-          <Box height="200px" width="100%" overflow="hidden"> {/* Constrain the height */}
-          <GPSMap isDashboard={true} />
+          <Box height="200px" width="100%" overflow="hidden">
+            {" "}
+            {/* Constrain the height */}
+            <GPSMap isDashboard={true} />
           </Box>
         </Box>
       </Box>

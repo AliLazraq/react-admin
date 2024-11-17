@@ -9,7 +9,7 @@ import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
 import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
+import EvStationIcon from '@mui/icons-material/EvStation';
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutlined";
@@ -50,7 +50,7 @@ const SidebarComponent = () => {
           background: colors.primary[400],
         },
         "& .ps-menu-button:hover": {
-          background: `${colors.primary[500]} !important`,
+          background: `${colors.primary[400]} !important`,
         },
         "& .pro-icon-wrapper": {
           backgroundColor: "transparent !important",
@@ -59,7 +59,7 @@ const SidebarComponent = () => {
           padding: "5px 35px 5px 20px !important",
         },
         "& .pro-inner-item:hover": {
-          color: "#868dfb !important",
+          color: `${colors.primary[500]} !important`,
         },
         "& .pro-menu-item.active": {
           color: "#6870fa !important",
@@ -85,7 +85,7 @@ const SidebarComponent = () => {
                 ml="15px"
               >
                 <Typography variant="h4" color={colors.grey[100]}>
-                  ADMINIS
+                  Teltonika
                 </Typography>
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                   <MenuOutlinedIcon />
@@ -115,7 +115,7 @@ const SidebarComponent = () => {
                   Ali Lazraq
                 </Typography>
                 <Typography variant="h5" color={colors.greenAccent[500]}>
-                  VP Fancy Admin
+                  Admin
                 </Typography>
               </Box>
             </Box>
@@ -167,16 +167,16 @@ const SidebarComponent = () => {
               Pages
             </Typography>
             <Item
-              title="Profile Form"
+              title="Fuel Logs"
               to="/form"
-              icon={<PersonOutlinedIcon />}
+              icon={<EvStationIcon />}
               selected={selected}
               setSelected={setSelected}
             />
             <Item
-              title="Calendar"
-              to="/calendar"
-              icon={<CalendarTodayOutlinedIcon />}
+              title="Geofence"
+              to="/geofence"
+              icon={<MapOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
             />
@@ -213,13 +213,6 @@ const SidebarComponent = () => {
               title="Line Chart"
               to="/line"
               icon={<TimelineOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Geography Chart"
-              to="/geography"
-              icon={<MapOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
             />

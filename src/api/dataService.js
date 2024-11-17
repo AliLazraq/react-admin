@@ -80,13 +80,99 @@ export const fetchDeviceStatusCounts = async () => {
   }
 };
 
-// Function to fetch GPS data from the backend
-export const fetchGpsData = async () => {
+// Function to fetch Vehicle count from the backend
+export const fetchVehicleCount = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/avldata/gps-data`);
+    const response = await axios.get(`${API_BASE_URL}/vehicles/count`);
     return response.data;
   } catch (error) {
-    console.error("Error fetching GPS data:", error);
+    console.error("Error fetching vehicle count:", error);
+    throw error;
+  }
+};
+
+
+// Fetch fuel logs for a specific vehicle
+export const fetchFuelLogsById = async (vehicleId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/fuel-logs/${vehicleId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching fuel logs for vehicle:", error);
+    throw error;
+  }
+};
+
+// Fetch fuel logs for all vehicles
+export const fetchFuelLogs = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/fuel-logs`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching all fuel logs:", error);
+    throw error;
+  }
+};
+
+
+// Function to fetch latest odometer reading from fuel-logs by id the backend
+export const fetchLatestOdometerReading = async (vehicleId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/fuel-logs/latest/${vehicleId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching latest odometer reading:", error);
+    throw error;
+  }
+};
+
+// Fetch all cities for geofencing
+export const fetchCityGeofences = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/city-geofencing`);
+    console.log("Geofences fetched:", response.data); // Debugging log
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching geofences:", error); // Log detailed error
+    throw error;
+  }
+};
+
+// Check geofence breach for a specific device and city
+export const checkCityGeofenceBreach = async (deviceId, cityName) => {
+  const response = await axios.post(`${API_BASE_URL}/city-geofencing/check-breach`, {
+    deviceId,
+    cityName,
+  });
+  return response.data; // Return the full response to handle breach status
+};
+
+// Fetch all alerts
+export const fetchAlerts = async () => {
+  const response = await axios.get(`${API_BASE_URL}/alerts`);
+  return response.data;
+};
+
+// Delete all alerts
+export const deleteAllAlerts = async () => {
+  console.log("Deleting all alerts...");
+  const response = await axios.delete(`${API_BASE_URL}/alerts/delete-all`);
+  return response.data;
+};
+
+// Fetch latest GPS data
+export const fetchGpsData = async () => {
+  const response = await axios.get(`${API_BASE_URL}/gps/latest`);
+  return response.data;
+};
+
+// Fetch vehicle by ID
+export const fetchVehicleById = async (id) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/vehicles/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching vehicle by ID:", error);
     throw error;
   }
 };

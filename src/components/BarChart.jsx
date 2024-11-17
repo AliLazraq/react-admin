@@ -2,29 +2,51 @@ import { useTheme } from "@mui/material";
 import { ResponsiveBar } from "@nivo/bar";
 import { tokens } from "../theme";
 import { useEffect, useState } from "react";
-import { fetchAvlData } from "../api/dataService";
+import { fetchFuelLogs, fetchVehicleById } from "../api/dataService";
 
 const BarChart = ({ isDashboard = false }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
-  const [data, setData] = useState([]);
+  const [barData, setBarData] = useState([]);
 
   useEffect(() => {
-    const loadData = async () => {
+    const loadBarData = async () => {
       try {
-        const result = await fetchAvlData();
-        setData(result); 
+        const fuelLogs = await fetchFuelLogs();
+
+        // Group fuel logs by vehicleId and find the last odometer for each vehicle
+        const groupedLogs = fuelLogs.reduce((acc, log) => {
+          if (!acc[log.vehicleId] || new Date(acc[log.vehicleId].date) < new Date(log.date)) {
+            acc[log.vehicleId] = log;
+          }
+          return acc;
+        }, {});
+
+        const vehicleData = await Promise.all(
+          Object.keys(groupedLogs).map(async (vehicleId) => {
+            const vehicleDetails = await fetchVehicleById(vehicleId);
+            return {
+              vehicle: `${vehicleDetails.make} ${vehicleDetails.model}`,
+              odometer: groupedLogs[vehicleId].odometer,
+            };
+          })
+        );
+
+        setBarData(vehicleData);
       } catch (error) {
-        console.error("Error loading chart data:", error);
+        console.error("Error loading bar chart data:", error);
       }
     };
-    loadData();
+
+    loadBarData();
   }, []);
 
   return (
     <ResponsiveBar
-      data={data} 
+      data={barData}
+      keys={["odometer"]}
+      indexBy="vehicle"
       theme={{
         axis: {
           domain: { line: { stroke: colors.grey[100] } },
@@ -33,25 +55,19 @@ const BarChart = ({ isDashboard = false }) => {
         },
         legends: { text: { fill: colors.grey[100] } },
       }}
-      keys={["angle", "altitude"]} 
-      indexBy="deviceId" 
       margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
       padding={0.3}
       valueScale={{ type: "linear" }}
       indexScale={{ type: "band", round: true }}
       colors={{ scheme: "nivo" }}
-      defs={[
-        { id: "dots", type: "patternDots", background: "inherit", color: "#38bcb2", size: 4, padding: 1, stagger: true },
-        { id: "lines", type: "patternLines", background: "inherit", color: "#eed312", rotation: -45, lineWidth: 6, spacing: 10 },
-      ]}
       borderColor={{ from: "color", modifiers: [["darker", "1.6"]] }}
       axisTop={null}
       axisRight={null}
       axisBottom={{
         tickSize: 5,
         tickPadding: 5,
-        tickRotation: 0,
-        legend: isDashboard ? undefined : "deviceId", 
+        tickRotation: -30,
+        legend: isDashboard ? undefined : "Vehicle",
         legendPosition: "middle",
         legendOffset: 32,
       }}
@@ -59,11 +75,11 @@ const BarChart = ({ isDashboard = false }) => {
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,
-        legend: isDashboard ? undefined : "Value",
+        legend: "Odometer",
         legendPosition: "middle",
         legendOffset: -40,
       }}
-      enableLabel={false}
+      enableLabel={true}
       labelSkipWidth={12}
       labelSkipHeight={12}
       labelTextColor={{ from: "color", modifiers: [["darker", 1.6]] }}
@@ -85,7 +101,7 @@ const BarChart = ({ isDashboard = false }) => {
         },
       ]}
       role="application"
-      barAriaLabel={(e) => `${e.id}: ${e.formattedValue} in device: ${e.indexValue}`}
+      barAriaLabel={(e) => `${e.id}: ${e.formattedValue} for vehicle: ${e.indexValue}`}
     />
   );
 };
