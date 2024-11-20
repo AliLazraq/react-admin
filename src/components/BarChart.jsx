@@ -1,155 +1,64 @@
-// import { useTheme } from "@mui/material";
-// import { ResponsiveBar } from "@nivo/bar";
-// import { tokens } from "../theme";
-// import { useEffect, useState } from "react";
-// import { fetchFuelLogs, fetchVehicleById } from "../api/dataService";
-
-// const BarChart = ({ isDashboard = false }) => {
-//   const theme = useTheme();
-//   const colors = tokens(theme.palette.mode);
-
-//   const [barData, setBarData] = useState([]);
-
-//   useEffect(() => {
-//     const loadBarData = async () => {
-//       try {
-//         const fuelLogs = await fetchFuelLogs();
-
-//         // Group fuel logs by vehicleId and find the last odometer for each vehicle
-//         const groupedLogs = fuelLogs.reduce((acc, log) => {
-//           if (!acc[log.vehicleId] || new Date(acc[log.vehicleId].date) < new Date(log.date)) {
-//             acc[log.vehicleId] = log;
-//           }
-//           return acc;
-//         }, {});
-
-//         const vehicleData = await Promise.all(
-//           Object.keys(groupedLogs).map(async (vehicleId) => {
-//             const vehicleDetails = await fetchVehicleById(vehicleId);
-//             return {
-//               vehicle: `${vehicleDetails.make} ${vehicleDetails.model}`,
-//               odometer: groupedLogs[vehicleId].odometer,
-//             };
-//           })
-//         );
-
-//         setBarData(vehicleData);
-//       } catch (error) {
-//         console.error("Error loading bar chart data:", error);
-//       }
-//     };
-
-//     loadBarData();
-//   }, []);
-
-//   return (
-//     <ResponsiveBar
-//       data={barData}
-//       keys={["odometer"]}
-//       indexBy="vehicle"
-//       theme={{
-//         axis: {
-//           domain: { line: { stroke: colors.grey[100] } },
-//           legend: { text: { fill: colors.grey[100] } },
-//           ticks: { line: { stroke: colors.grey[100], strokeWidth: 1 }, text: { fill: colors.grey[100] } },
-//         },
-//         legends: { text: { fill: colors.grey[100] } },
-//       }}
-//       margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
-//       padding={0.3}
-//       valueScale={{ type: "linear" }}
-//       indexScale={{ type: "band", round: true }}
-//       colors={{ scheme: "nivo" }}
-//       borderColor={{ from: "color", modifiers: [["darker", "1.6"]] }}
-//       axisTop={null}
-//       axisRight={null}
-//       axisBottom={{
-//         tickSize: 5,
-//         tickPadding: 5,
-//         tickRotation: -30,
-//         legend: isDashboard ? undefined : "Vehicle",
-//         legendPosition: "middle",
-//         legendOffset: 32,
-//       }}
-//       axisLeft={{
-//         tickSize: 5,
-//         tickPadding: 5,
-//         tickRotation: 0,
-//         legend: "Odometer",
-//         legendPosition: "middle",
-//         legendOffset: -40,
-//       }}
-//       enableLabel={true}
-//       labelSkipWidth={12}
-//       labelSkipHeight={12}
-//       labelTextColor={{ from: "color", modifiers: [["darker", 1.6]] }}
-//       legends={[
-//         {
-//           dataFrom: "keys",
-//           anchor: "bottom-right",
-//           direction: "column",
-//           justify: false,
-//           translateX: 120,
-//           translateY: 0,
-//           itemsSpacing: 2,
-//           itemWidth: 100,
-//           itemHeight: 20,
-//           itemDirection: "left-to-right",
-//           itemOpacity: 0.85,
-//           symbolSize: 20,
-//           effects: [{ on: "hover", style: { itemOpacity: 1 } }],
-//         },
-//       ]}
-//       role="application"
-//       barAriaLabel={(e) => `${e.id}: ${e.formattedValue} for vehicle: ${e.indexValue}`}
-//     />
-//   );
-// };
-
-// export default BarChart;
-
-
-import {
-  useTheme,
-  Box,
-  Typography,
-  Paper,
-} from "@mui/material";
 import { ResponsiveLine } from "@nivo/line";
+import {
+  Box,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  useTheme,
+  Typography,
+} from "@mui/material";
 import { tokens } from "../theme";
 import { useState, useEffect } from "react";
-import { fetchFuelLogs } from "../api/dataService";
+import { fetchVehicleFuelLogs } from "../api/dataService";
 
-const BarChart = () => {
+const DistanceTraveledChart = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [chartData, setChartData] = useState([]);
+  const [visibleVehicles, setVisibleVehicles] = useState({});
+
+  // Color mapping for vehicle lines
+  const lineColors = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3"]; // Add more colors if needed
 
   useEffect(() => {
     const loadChartData = async () => {
-      const fuelLogs = await fetchFuelLogs();
-      const distanceData = createDistanceTraveledData(fuelLogs);
+      const vehicleFuelLogs = await fetchVehicleFuelLogs();
+      const distanceData = createDistanceTraveledData(vehicleFuelLogs);
+
+      const initialVisibility = {};
+      distanceData.forEach(({ id }) => {
+        initialVisibility[id] = true; // Default: Show all vehicles
+      });
+
+      setVisibleVehicles(initialVisibility);
       setChartData(distanceData);
     };
     loadChartData();
   }, []);
 
   const createDistanceTraveledData = (fuelLogs) => {
-    const vehicles = [1, 2];
-    const vehicleData = vehicles.map((vehicleId) => {
-      const filteredLogs = fuelLogs
-        .filter((log) => log.vehicleId === vehicleId)
-        .sort((a, b) => new Date(a.date) - new Date(b.date)); // Sort logs by date
+    const groupedLogs = {};
 
-      const data = filteredLogs.map((log, index) => {
-        if (index === 0) return { x: log.date.split("T")[0], y: 0 }; // No distance for the first log
-        const prevLog = filteredLogs[index - 1];
+    fuelLogs.forEach((log) => {
+      const vehicleKey = `${log.make} (${log.plateNumber})`;
+      if (!groupedLogs[vehicleKey]) {
+        groupedLogs[vehicleKey] = [];
+      }
+      groupedLogs[vehicleKey].push(log);
+    });
+
+    const vehicleData = Object.entries(groupedLogs).map(([vehicleKey, logs]) => {
+      const sortedLogs = logs.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      const data = sortedLogs.map((log, index) => {
+        if (index === 0) return { x: log.date.split("T")[0], y: 0 };
+        const prevLog = sortedLogs[index - 1];
         const distance = log.odometer - prevLog.odometer;
-        return { x: log.date.split("T")[0], y: distance > 0 ? distance : 0 }; // Only include positive distances
+        return { x: log.date.split("T")[0], y: distance > 0 ? distance : 0 };
       });
 
       return {
-        id: `Vehicle ${vehicleId}`,
+        id: vehicleKey,
         data,
       };
     });
@@ -157,27 +66,67 @@ const BarChart = () => {
     return vehicleData;
   };
 
+  const visibleData = chartData.filter((data) => visibleVehicles[data.id]);
+
   return (
-    <Paper
-      elevation={3}
+    <Box
       sx={{
-        marginTop: "-20px",
-        width: "100%",
-        padding: "0px",
-        borderRadius: "10px",
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
         backgroundColor: colors.primary[400],
+        padding: "20px",
+        borderRadius: "10px",
       }}
     >
+      {/* Vehicle Toggles */}
+      <Box sx={{ display: "flex", flexDirection: "column" }}>
+        <Typography
+          variant="h6"
+          sx={{ color: colors.grey[100], marginBottom: "10px" }}
+        >
+          Vehicles
+        </Typography>
+        <FormGroup>
+          {Object.keys(visibleVehicles).map((vehicle, index) => (
+            <FormControlLabel
+              key={vehicle}
+              control={
+                <Checkbox
+                  checked={visibleVehicles[vehicle]}
+                  onChange={(e) =>
+                    setVisibleVehicles({
+                      ...visibleVehicles,
+                      [vehicle]: e.target.checked,
+                    })
+                  }
+                  sx={{
+                    color: visibleVehicles[vehicle]
+                      ? lineColors[index % lineColors.length]
+                      : colors.grey[400],
+                    "&.Mui-checked": { color: lineColors[index % lineColors.length] },
+                  }}
+                />
+              }
+              label={
+                <Typography sx={{ color: colors.grey[100] }}>{vehicle}</Typography>
+              }
+            />
+          ))}
+        </FormGroup>
+      </Box>
+
       {/* Line Chart */}
-      <Box style={{ height: "270px", width: "100%" }}>
-        {chartData.length > 0 ? (
+      <Box style={{ height: "280px", width: "90%" }}>
+        {visibleData.length > 0 ? (
           <ResponsiveLine
-            data={chartData}
-            margin={{ top: 50, right: 60, bottom: 80, left: 60 }}
+            data={visibleData}
+            margin={{ top: 20, right: 20, bottom: 80, left: 60 }}
             xScale={{ type: "point" }}
             yScale={{
               type: "linear",
-              min: 0, // Start from 0
+              min: 0,
               max: "auto",
               stacked: false,
             }}
@@ -186,8 +135,8 @@ const BarChart = () => {
               tickSize: 5,
               tickPadding: 5,
               tickRotation: -45,
-              legend: "Date",
-              legendOffset: 36,
+              legend: "",
+              legendOffset: 40,
               legendPosition: "middle",
             }}
             axisLeft={{
@@ -199,6 +148,40 @@ const BarChart = () => {
               legendOffset: -50,
               legendPosition: "middle",
             }}
+            theme={{
+              axis: {
+                domain: {
+                  line: {
+                    stroke: colors.grey[100],
+                  },
+                },
+                legend: {
+                  text: {
+                    fill: colors.grey[100],
+                  },
+                },
+                ticks: {
+                  line: {
+                    stroke: colors.grey[100],
+                  },
+                  text: {
+                    fill: colors.grey[100],
+                  },
+                },
+              },
+              grid: {
+                line: {
+                  stroke: colors.grey[300],
+                  strokeWidth: 1,
+                },
+              },
+              tooltip: {
+                container: {
+                  color: colors.primary[500],
+                },
+              },
+            }}
+            colors={(d) => lineColors[chartData.findIndex((v) => v.id === d.id) % lineColors.length]}
             pointSize={10}
             pointColor={colors.grey[900]}
             pointBorderWidth={2}
@@ -206,18 +189,7 @@ const BarChart = () => {
             enableGridX={false}
             enableGridY={true}
             useMesh={true}
-            colors={{ scheme: "set1" }}
-            legends={[
-              {
-                anchor: "bottom-right",
-                direction: "column",
-                translateX: 80,
-                itemWidth: 80,
-                itemHeight: 20,
-                symbolSize: 12,
-                symbolShape: "circle",
-              },
-            ]}
+            legends={[]}
           />
         ) : (
           <Typography variant="h6" color="error" align="center">
@@ -225,8 +197,8 @@ const BarChart = () => {
           </Typography>
         )}
       </Box>
-    </Paper>
+    </Box>
   );
 };
 
-export default BarChart;
+export default DistanceTraveledChart;

@@ -2,13 +2,13 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 import CitySelector from '../../components/CitySelector';
 import AlertDisplay from '../../components/AlertDisplay';
+import Header from '../../components/Header';
+
 
 const Geofence = () => {
   return (
     <Box p={3}>
-      <Typography variant="h4" gutterBottom>
-        Geofencing Dashboard
-      </Typography>
+      <Header title="Geofencing Dashboard" subtitle="City Geofencing" />
 
       <Box mb={4}>
         <CitySelector />

@@ -89,7 +89,7 @@ const OdometerDisplay = ({ selectedVehicle }) => {
         <CircularProgress />
       ) : (
         <>
-          <Typography variant="h4" color="#fffffff">
+          <Typography variant="h4" color="#fffff">
             {odometerReading !== null
               ? `${odometerReading} km`
               : 'No data available'}

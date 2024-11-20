@@ -1,29 +1,49 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, FormControl, InputLabel, Select, MenuItem, TextField } from '@mui/material';
-import { fetchCityGeofences, checkCityGeofenceBreach } from '../api/dataService';
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  Typography,
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
+import {
+  fetchCityGeofences,
+  fetchVehicles,
+  checkCityGeofenceBreach,
+} from "../api/dataService";
 
 const CitySelector = () => {
   const [cities, setCities] = useState([]);
-  const [selectedCity, setSelectedCity] = useState('');
-  const [deviceId, setDeviceId] = useState(''); // Correctly handles device ID input
+  const [selectedCity, setSelectedCity] = useState("");
+  const [vehicles, setVehicles] = useState([]);
+  const [selectedVehicle, setSelectedVehicle] = useState("");
 
-  // Load cities and persist selected city on component mount
+  // Load cities and vehicles on component mount
   useEffect(() => {
-    const loadCities = async () => {
+    const loadData = async () => {
       try {
         const cityData = await fetchCityGeofences();
         setCities(cityData);
 
-        // Retrieve persisted city from local storage
-        const persistedCity = localStorage.getItem('selectedCity');
+        const vehicleData = await fetchVehicles(); // Fetch all vehicles
+        setVehicles(vehicleData);
+
+        // Retrieve persisted city and vehicle from local storage
+        const persistedCity = localStorage.getItem("selectedCity");
+        const persistedVehicle = localStorage.getItem("selectedVehicle");
         if (persistedCity) {
           setSelectedCity(persistedCity);
         }
+        if (persistedVehicle) {
+          setSelectedVehicle(persistedVehicle);
+        }
       } catch (error) {
-        console.error('Failed to fetch cities:', error);
+        console.error("Failed to fetch data:", error);
       }
     };
-    loadCities();
+    loadData();
   }, []);
 
   const handleCityChange = (event) => {
@@ -31,32 +51,33 @@ const CitySelector = () => {
     setSelectedCity(city);
 
     // Persist the selected city in local storage
-    localStorage.setItem('selectedCity', city);
+    localStorage.setItem("selectedCity", city);
   };
 
-  const handleDeviceIdChange = (event) => {
-    setDeviceId(event.target.value); // Properly updates the deviceId state
+  const handleVehicleChange = (event) => {
+    const vehicle = event.target.value;
+    setSelectedVehicle(vehicle);
+
+    // Persist the selected vehicle in local storage
+    localStorage.setItem("selectedVehicle", vehicle);
   };
 
   const handleCheckBreach = async () => {
-    if (!deviceId || !selectedCity) {
-      alert('Please select a city and enter a device ID.');
+    if (!selectedVehicle || !selectedCity) {
+      alert("Please select a city and a vehicle.");
       return;
     }
     try {
-      const response = await checkCityGeofenceBreach(deviceId, selectedCity);
+      const vehicleId = selectedVehicle.split(" ")[0]; // Extract vehicleId
+      await checkCityGeofenceBreach(vehicleId, selectedCity);
     } catch (error) {
-      console.error('Failed to check geofence breach:', error);
-      alert('An error occurred while checking the geofence.');
+      console.error("Failed to check geofence breach:", error);
+      alert("An error occurred while checking the geofence.");
     }
   };
 
   return (
     <Box p={3}>
-      <Typography variant="h5" gutterBottom>
-        City Geofencing
-      </Typography>
-
       <FormControl fullWidth margin="normal">
         <InputLabel>Select City</InputLabel>
         <Select value={selectedCity} onChange={handleCityChange}>
@@ -68,15 +89,28 @@ const CitySelector = () => {
         </Select>
       </FormControl>
 
-      <TextField
-        label="Device ID"
-        value={deviceId}
-        onChange={handleDeviceIdChange} // Correctly handles input changes
-        fullWidth
-        margin="normal"
-      />
+      <FormControl fullWidth margin="normal">
+        <InputLabel>Select Vehicle</InputLabel>
+        <Select value={selectedVehicle} onChange={handleVehicleChange}>
+          {vehicles.map((vehicle) => (
+            <MenuItem
+              key={vehicle.vehicleId}
+              value={`${vehicle.vehicleId} ${vehicle.make} (${vehicle.plateNumber})`}
+            >
+              {vehicle.make} ({vehicle.plateNumber})
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
 
-      <Button variant="contained" color="primary" onClick={handleCheckBreach}>
+      <Button
+        variant="contained"
+        color="secondary"
+        onClick={() => {
+          handleCheckBreach(); // Call your existing function
+          window.location.reload(); // Reload the page
+        }}
+      >
         Check Geofence Breach
       </Button>
     </Box>

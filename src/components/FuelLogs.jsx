@@ -117,9 +117,6 @@ const FuelLogForm = () => {
 
   return (
     <Box p={3}>
-      <Typography variant="h6" mb={2}>
-        Add Fuel Log
-      </Typography>
 
       {/* Vehicle Selector */}
       <Box mb={2}>

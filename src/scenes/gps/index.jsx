@@ -2,6 +2,7 @@ import { Box, useTheme } from "@mui/material";
 import GPSMap from "../../components/GPSMap";
 import Header from "../../components/Header";
 import { tokens } from "../../theme";
+import DeviceTimelines from "../../components/Timeline";
 
 const GPS = () => {
   const theme = useTheme();
@@ -17,6 +18,11 @@ const GPS = () => {
         borderRadius="4px"
       >
         <GPSMap />
+      </Box>
+      <Box m="20px" mt="20px"/>
+      <Header title="Timelines of Vehicles" />
+      <Box height="75vh">
+        <DeviceTimelines />
       </Box>
     </Box>
   );

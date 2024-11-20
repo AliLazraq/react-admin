@@ -176,3 +176,92 @@ export const fetchVehicleById = async (id) => {
     throw error;
   }
 };
+
+// Fetch for the join of vehicles and fuel logs
+export const fetchVehicleFuelLogs = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/fuel-logs/fuel-logs-with-vehicle`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching vehicle fuel logs:", error);
+    throw error;
+  }
+};
+
+// fetch avl data by vehicle id
+export const fetchAvlDataByDeviceId = async (DeviceId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/avldata/device/${DeviceId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching AVL data by vehicle ID:", error);
+    throw error;
+  }
+};
+
+// Fetch fuel logs for a specific vehicle for maintenance alerts
+export const fetchMaintenanceAlerts = async (vehicleId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/maintenance/${vehicleId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching maintenance alerts:', error);
+    throw error;
+  }
+};
+
+// Fetch maintenance alerts with odometer
+export const fetchMaintenanceAlertsWithOdometer = async (vehicleId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/maintenance/alerts/${vehicleId}`);
+    return response.data; // Will include both currentOdometer and maintenanceList
+  } catch (error) {
+    console.error('Error fetching maintenance alerts:', error);
+    throw error;
+  }
+};
+
+
+// Fetch trackers for vehicles
+export const fetchTrackers = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/tracker`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching trackers:", error);
+    throw error;
+  }
+};
+
+// Fetch latest odometer
+export const fetchLatestOdometer = async (vehicleId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/fuel-logs/latest/${vehicleId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching latest odometer:", error);
+    throw error;
+  }
+};
+
+// Fetch trackers by vehicle ID
+export const fetchTrackersByVehicleId = async (vehicleId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/tracker/${vehicleId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching trackers by vehicle ID:", error);
+    throw error;
+  }
+};
+
+// Post a new maintenance record by vehicle ID
+export const postMaintenanceRecord = async (vehicleId, maintenanceData) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/maintenance/${vehicleId}`, maintenanceData);
+    return response.data;
+  } catch (error) {
+    console.error("Error posting maintenance record:", error);
+    throw error;
+  }
+};

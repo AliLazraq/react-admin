@@ -7,7 +7,7 @@ import Sidebar from "./scenes/global/Sidebar";
 import Dashboard from "./scenes/dashboard";
 import Team from "./scenes/team";
 import Contacts from "./scenes/contacts";
-import Invoices from "./scenes/invoices";
+import Predictions from "./scenes/prediction";
 import Bar from "./scenes/bar";
 import Form from "./scenes/form";
 import Line from "./scenes/line";
@@ -30,11 +30,11 @@ function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/team" element={<Team />} />
               <Route path="/contacts" element={<Contacts />} />
-              <Route path="/invoices" element={<Invoices />} />
+              <Route path="/prediction" element={<Predictions />} />
               <Route path="/form" element={<Form />} />
-              <Route path="/bar" element={<Bar />} />
+              <Route path="/bar" element={<Line />} />
               <Route path="/pie" element={<Pie />} />
-              <Route path="/line" element={<Line />} />
+              <Route path="/line" element={<Bar />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/geofence" element={<Geofence />} />
               <Route path="/gps" element={<GPS />} />

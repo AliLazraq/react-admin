@@ -12,23 +12,36 @@ import {
 import { ResponsiveBar } from "@nivo/bar";
 import { tokens } from "../theme";
 import { useState, useEffect } from "react";
-import { fetchFuelLogs } from "../api/dataService";
+import { fetchVehicleFuelLogs } from "../api/dataService"; // Fetch the joined table
 
 const BarChart = ({ isDashboard = false }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [chartData, setChartData] = useState([]);
   const [viewMode, setViewMode] = useState("fuel_amount"); // Toggle between `fuel_amount` and `fuel_cost`
-  const [showVehicle1, setShowVehicle1] = useState(true); // Show/Hide Vehicle 1
-  const [showVehicle2, setShowVehicle2] = useState(true); // Show/Hide Vehicle 2
+  const [visibleVehicles, setVisibleVehicles] = useState({}); // Tracks visibility per vehicle
+
+  // Define the bar colors
+  const barColors = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3"];
 
   useEffect(() => {
     const loadChartData = async () => {
-      const fuelLogs = await fetchFuelLogs();
-      const filteredDates = getFilteredDates(fuelLogs);
-      const vehicle1Data = createChartData(fuelLogs, 1, filteredDates, viewMode);
-      const vehicle2Data = createChartData(fuelLogs, 2, filteredDates, viewMode);
-      setChartData([vehicle1Data, vehicle2Data]);
+      const vehicleFuelLogs = await fetchVehicleFuelLogs();
+      const filteredDates = getFilteredDates(vehicleFuelLogs);
+      const groupedData = createChartData(vehicleFuelLogs, filteredDates, viewMode);
+
+      // Initialize visibility
+      const initialVisibility = {};
+      groupedData.forEach((entry) => {
+        Object.keys(entry).forEach((key) => {
+          if (key !== "date") {
+            initialVisibility[key] = true;
+          }
+        });
+      });
+
+      setVisibleVehicles(initialVisibility);
+      setChartData(groupedData);
     };
     loadChartData();
   }, [viewMode]);
@@ -39,46 +52,32 @@ const BarChart = ({ isDashboard = false }) => {
     return [...new Set(dates)].sort();
   };
 
-  const createChartData = (fuelLogs, vehicleId, filteredDates, mode) => {
-    const filteredLogs = fuelLogs.filter((log) => log.vehicleId === vehicleId);
-    const groupedLogs = filteredDates.map((date) => {
-      const dailyLogs = filteredLogs.filter(
-        (log) => log.date.split("T")[0] === date
-      );
-      const value = dailyLogs.reduce((sum, log) => {
-        if (mode === "fuel_amount") return sum + log.fuelAmount;
-        if (mode === "fuel_cost") return sum + log.fuelCost;
-        return sum;
-      }, 0);
+  const createChartData = (fuelLogs, filteredDates, mode) => {
+    const groupedData = filteredDates.map((date) => {
+      const entry = { date };
 
-      return {
-        date,
-        [`Vehicle ${vehicleId}`]: value || 0,
-      };
-    });
+      fuelLogs.forEach((log) => {
+        const vehicleLabel = `${log.make} (${log.plateNumber})`;
+        if (!entry[vehicleLabel]) entry[vehicleLabel] = 0;
 
-    return groupedLogs;
-  };
-
-  const combineChartData = (vehicle1Data, vehicle2Data) => {
-    const combined = [];
-    vehicle1Data.forEach((entry, index) => {
-      combined.push({
-        date: entry.date,
-        "Vehicle 1": entry["Vehicle 1"],
-        "Vehicle 2": vehicle2Data[index]["Vehicle 2"],
+        if (log.date.split("T")[0] === date) {
+          entry[vehicleLabel] += mode === "fuel_amount" ? log.fuelAmount : log.fuelCost;
+        }
       });
+
+      return entry;
     });
-    return combined;
+
+    return groupedData;
   };
 
-  const visibleData = combineChartData(
-    chartData[0] || [],
-    chartData[1] || []
-  ).map((entry) => {
+  const visibleData = chartData.map((entry) => {
     const filteredEntry = { date: entry.date };
-    if (showVehicle1) filteredEntry["Vehicle 1"] = entry["Vehicle 1"];
-    if (showVehicle2) filteredEntry["Vehicle 2"] = entry["Vehicle 2"];
+    Object.keys(entry).forEach((key) => {
+      if (key !== "date" && visibleVehicles[key]) {
+        filteredEntry[key] = entry[key];
+      }
+    });
     return filteredEntry;
   });
 
@@ -88,7 +87,7 @@ const BarChart = ({ isDashboard = false }) => {
       sx={{
         padding: "20px",
         borderRadius: "10px",
-        backgroundColor: colors.primary[400],
+        backgroundColor: colors.primary[400] + " !important",
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
@@ -105,41 +104,32 @@ const BarChart = ({ isDashboard = false }) => {
           paddingRight: "10px",
         }}
       >
-
         {/* Vehicle Toggles */}
         <FormGroup sx={{ mb: 2, gap: "10px" }}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={showVehicle1}
-                onChange={(e) => setShowVehicle1(e.target.checked)}
-                sx={{
-                  color: showVehicle1 ? "#e41a1c" : "rgba(255, 255, 255, 0.5)", // Red for Vehicle 1
-                  "&.Mui-checked": {
-                    color: "#e41a1c", // Red for checked
-                  },
-                }}
-              />
-            }
-            label="Vehicle 1"
-            sx={{ color: colors.grey[100] }}
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={showVehicle2}
-                onChange={(e) => setShowVehicle2(e.target.checked)}
-                sx={{
-                  color: showVehicle2 ? "#377eb8" : "rgba(255, 255, 255, 0.5)", // Blue for Vehicle 2
-                  "&.Mui-checked": {
-                    color: "#377eb8", // Blue for checked
-                  },
-                }}
-              />
-            }
-            label="Vehicle 2"
-            sx={{ color: colors.grey[100] }}
-          />
+          {Object.keys(visibleVehicles).map((vehicle, index) => (
+            <FormControlLabel
+              key={vehicle}
+              control={
+                <Checkbox
+                  checked={visibleVehicles[vehicle]}
+                  onChange={(e) =>
+                    setVisibleVehicles({
+                      ...visibleVehicles,
+                      [vehicle]: e.target.checked,
+                    })
+                  }
+                  sx={{
+                    color: barColors[index % barColors.length],
+                    "&.Mui-checked": {
+                      color: barColors[index % barColors.length],
+                    },
+                  }}
+                />
+              }
+              label={vehicle}
+              sx={{ color: barColors[index % barColors.length] }}
+            />
+          ))}
         </FormGroup>
 
         {/* Toggle Buttons for View Mode */}
@@ -152,13 +142,35 @@ const BarChart = ({ isDashboard = false }) => {
         >
           <Button
             onClick={() => setViewMode("fuel_amount")}
-            color={viewMode === "fuel_amount" ? "primary" : "default"}
+            sx={{
+              backgroundColor:
+                viewMode === "fuel_amount"
+                  ? colors.greenAccent[500]
+                  : colors.grey[400],
+              color:
+                viewMode === "fuel_amount"
+                  ? colors.grey[900]
+                  : colors.grey[700],
+              "&:hover": {
+                backgroundColor: colors.greenAccent[700],
+              },
+            }}
           >
             Fuel Amount
           </Button>
           <Button
             onClick={() => setViewMode("fuel_cost")}
-            color={viewMode === "fuel_cost" ? "primary" : "default"}
+            sx={{
+              backgroundColor:
+                viewMode === "fuel_cost"
+                  ? colors.greenAccent[500]
+                  : colors.grey[400],
+              color:
+                viewMode === "fuel_cost" ? colors.grey[900] : colors.grey[700],
+              "&:hover": {
+                backgroundColor: colors.greenAccent[700],
+              },
+            }}
           >
             Fuel Cost
           </Button>
@@ -175,18 +187,55 @@ const BarChart = ({ isDashboard = false }) => {
         {visibleData.length > 0 ? (
           <ResponsiveBar
             data={visibleData}
-            keys={["Vehicle 1", "Vehicle 2"]}
+            keys={Object.keys(visibleVehicles).filter(
+              (key) => visibleVehicles[key]
+            )}
             indexBy="date"
             margin={{ top: 30, right: 50, bottom: 80, left: 50 }}
             padding={0.3}
-            colors={{ scheme: "set1" }}
+            colors={({ id }) =>
+              barColors[Object.keys(visibleVehicles).indexOf(id) % barColors.length]
+            } // Use barColors for bars
             axisBottom={{
               tickSize: 5,
               tickPadding: 5,
               tickRotation: -45,
-              legend: "Date",
+              legend: "",
               legendOffset: 36,
               legendPosition: "middle",
+            }}
+            theme={{
+              axis: {
+                domain: {
+                  line: {
+                    stroke: colors.grey[100], // Set the axis line color
+                  },
+                },
+                legend: {
+                  text: {
+                    fill: colors.grey[100], // Set the legend text color
+                  },
+                },
+                ticks: {
+                  line: {
+                    stroke: colors.grey[100], // Set the tick line color
+                  },
+                  text: {
+                    fill: colors.grey[100], // Set the tick text color
+                  },
+                },
+              },
+              grid: {
+                line: {
+                  stroke: colors.grey[300], // Grid lines
+                  strokeWidth: 1,
+                },
+              },
+              tooltip: {
+                container: {
+                  color: colors.primary[500], // Tooltip background color
+                },
+              },
             }}
             axisLeft={{
               tickSize: 5,
