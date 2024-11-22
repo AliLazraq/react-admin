@@ -1,16 +1,15 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
-import FuelLogForm from '../../components/MaintenanceAlerts';
 import Header from '../../components/Header';
 import MaintenanceAlerts from '../../components/MaintenanceAlerts';
 
 
-const Form = () => {
+const Maintenance = () => {
  
 
   return (
     <Box p={3}> 
-      <Header title="Maintenance" subtitle="Test" />
+      <Header title="Maintenance Alerts" subtitle="Information" />
       <Box mb={4}>
         <MaintenanceAlerts />
       </Box>
@@ -18,4 +17,4 @@ const Form = () => {
   );
 };
 
-export default Form;
+export default Maintenance;

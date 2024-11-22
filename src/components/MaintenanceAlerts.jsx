@@ -11,12 +11,13 @@ import {
   InputLabel,
   FormControl,
   CircularProgress,
+  useTheme,
 } from "@mui/material";
 import VehicleSelector from "./VehicleSelector";
 import {
   postMaintenanceRecord,
   fetchTrackersByVehicleId,
-  fetchLatestOdometer
+  fetchLatestOdometer,
 } from "../api/dataService";
 
 const MaintenanceAlerts = () => {
@@ -29,6 +30,8 @@ const MaintenanceAlerts = () => {
     price: "",
   });
 
+  const theme = useTheme(); // Access the current theme
+
   // Thresholds for operations
   const thresholds = {
     "Oil Change": 10000,
@@ -36,11 +39,9 @@ const MaintenanceAlerts = () => {
     "Distribution Chain Change": 150000,
   };
 
-
-
   // Fetch trackers by vehicle id
   const fetchTrackers = async (vehicleId) => {
-    try { 
+    try {
       const trackers = await fetchTrackersByVehicleId(vehicleId);
       setTrackers(trackers);
       console.log("Trackers:", trackers);
@@ -49,11 +50,10 @@ const MaintenanceAlerts = () => {
     }
   };
 
-
   // Fetch latest odometer
   const fetchOdometer = async (vehicleId) => {
     try {
-      const {odometer} = await fetchLatestOdometer(vehicleId);
+      const { odometer } = await fetchLatestOdometer(vehicleId);
       setCurrentOdometer(odometer);
     } catch (error) {
       console.error("Error fetching latest odometer:", error);
@@ -61,8 +61,10 @@ const MaintenanceAlerts = () => {
   };
 
   useEffect(() => {
-    fetchTrackers(selectedVehicle);
-    fetchOdometer(selectedVehicle);
+    if (selectedVehicle) {
+      fetchTrackers(selectedVehicle);
+      fetchOdometer(selectedVehicle);
+    }
   }, [selectedVehicle]);
 
   // Handle Form Data Change
@@ -70,7 +72,7 @@ const MaintenanceAlerts = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // In your submit handler
+  // Handle Maintenance Submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.operationType || !formData.price) {
@@ -107,9 +109,7 @@ const MaintenanceAlerts = () => {
 
   if (loading) {
     return (
-      <Box
-        sx={{ display: "flex", justifyContent: "center", marginTop: "20px" }}
-      >
+      <Box sx={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
         <CircularProgress />
       </Box>
     );
@@ -117,9 +117,7 @@ const MaintenanceAlerts = () => {
 
   return (
     <Box sx={{ padding: "20px" }}>
-      <Typography variant="h4" sx={{ marginBottom: "20px" }}>
-        Maintenance Alerts
-      </Typography>
+
 
       {/* Vehicle Selector */}
       <VehicleSelector
@@ -132,9 +130,10 @@ const MaintenanceAlerts = () => {
       <Grid container spacing={3}>
         {["Oil Change", "Tires Change", "Distribution Chain Change"].map(
           (operation) => {
-
             // find corresponding tracker
-            const tracker = trackers.find(tracker => tracker.operationType === operation);
+            const tracker = trackers.find(
+              (tracker) => tracker.operationType === operation
+            );
             const trackerValue = tracker?.value || 0;
 
             return (
@@ -143,8 +142,12 @@ const MaintenanceAlerts = () => {
                   sx={{
                     padding: "20px",
                     borderRadius: "10px",
-                    backgroundColor: "#f4f4f4",
+                    backgroundColor:
+                      theme.palette.mode === "dark"
+                        ? theme.palette.background.paper
+                        : "#f4f4f4",
                     textAlign: "center",
+                    color: theme.palette.text.primary,
                   }}
                 >
                   <Typography variant="h6" sx={{ marginBottom: "10px" }}>
@@ -182,7 +185,11 @@ const MaintenanceAlerts = () => {
             sx={{
               padding: "20px",
               borderRadius: "10px",
-              backgroundColor: "#f4f4f4",
+              backgroundColor:
+                theme.palette.mode === "dark"
+                  ? theme.palette.background.secondary
+                  : "#f4f4f4",
+              color: theme.palette.text.primary,
             }}
           >
             <form onSubmit={handleSubmit}>
@@ -197,7 +204,7 @@ const MaintenanceAlerts = () => {
                       fullWidth
                     >
                       <MenuItem value="Oil Change">Oil Change</MenuItem>
-                      <MenuItem value="Tire Change">Tire Change</MenuItem>
+                      <MenuItem value="Tires Change">Tires Change</MenuItem>
                       <MenuItem value="Distribution Chain Change">
                         Distribution Chain Change
                       </MenuItem>

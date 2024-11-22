@@ -60,6 +60,18 @@ const FuelLogForm = () => {
         return;
       }
 
+      // Check if odometer value is greater than the last one
+      const lastLog = fuelLogs
+        .filter((log) => log.vehicleId === selectedVehicle)
+        .sort((a, b) => new Date(b.date) - new Date(a.date))[0]; // Get the latest log for the selected vehicle
+
+      if (lastLog && values.odometer <= lastLog.odometer) {
+        alert(
+          `Odometer value must be greater than the previous value (${lastLog.odometer}).`
+        );
+        return;
+      }
+
       const jsonData = {
         vehicleId: selectedVehicle,
         fuelAmount: Amount,
@@ -117,7 +129,6 @@ const FuelLogForm = () => {
 
   return (
     <Box p={3}>
-
       {/* Vehicle Selector */}
       <Box mb={2}>
         <VehicleSelector

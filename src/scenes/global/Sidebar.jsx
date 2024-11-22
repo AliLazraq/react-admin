@@ -6,35 +6,33 @@ import { tokens } from "../../theme";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
-import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
-import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
-import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-import EvStationIcon from '@mui/icons-material/EvStation';
+import EngineeringOutlined from "@mui/icons-material/EngineeringOutlined";
+import LocalAtmOutlined from "@mui/icons-material/LocalAtmOutlined";
+import EvStationIcon from "@mui/icons-material/EvStation";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
-import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutlined";
+import CandlestickChartOutlined from "@mui/icons-material/CandlestickChartOutlined";
 import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
-import GpsFixedIcon from '@mui/icons-material/GpsFixed';
-
+import ShareLocationOutlined from "@mui/icons-material/ShareLocationOutlined";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   return (
-    <Link to = {to} style={{ textDecoration: "none" }}> 
+    <Link to={to} style={{ textDecoration: "none" }}>
       <MenuItem
         active={selected === title}
         style={{
           color: selected === title ? colors.blueAccent[500] : colors.grey[100],
         }}
-        onClick={() => {setSelected(title)}}
+        onClick={() => setSelected(title)}
         icon={icon}
       >
         <Typography>{title}</Typography>
       </MenuItem>
     </Link>
-  ); 
+  );
 };
 
 const SidebarComponent = () => {
@@ -46,8 +44,11 @@ const SidebarComponent = () => {
   return (
     <Box
       sx={{
+        display: "flex",
+        height: "100vh", // Ensure the sidebar spans the entire viewport height
         "& .ps-sidebar-container": {
           background: colors.primary[400],
+          height: "100%",
         },
         "& .ps-menu-button:hover": {
           background: `${colors.primary[400]} !important`,
@@ -66,7 +67,7 @@ const SidebarComponent = () => {
         },
       }}
     >
-      <Sidebar collapsed={isCollapsed}>
+      <Sidebar collapsed={isCollapsed} style={{ height: "100%" }}>
         <Menu iconShape="square">
           {/* LOGO AND MENU ICON */}
           <MenuItem
@@ -145,16 +146,16 @@ const SidebarComponent = () => {
               setSelected={setSelected}
             />
             <Item
-              title="Contacts Information"
-              to="/contacts"
-              icon={<ContactsOutlinedIcon />}
+              title="Maintenance"
+              to="/maintenance"
+              icon={<EngineeringOutlined />}
               selected={selected}
               setSelected={setSelected}
             />
             <Item
               title="Price Prediction"
               to="/prediction"
-              icon={<ReceiptOutlinedIcon />}
+              icon={<LocalAtmOutlined />}
               selected={selected}
               setSelected={setSelected}
             />
@@ -203,13 +204,6 @@ const SidebarComponent = () => {
               setSelected={setSelected}
             />
             <Item
-              title="Pie Chart"
-              to="/pie"
-              icon={<PieChartOutlineOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
               title="Line Chart"
               to="/line"
               icon={<TimelineOutlinedIcon />}
@@ -217,9 +211,16 @@ const SidebarComponent = () => {
               setSelected={setSelected}
             />
             <Item
+              title="Progress Chart"
+              to="/progress"
+              icon={<CandlestickChartOutlined />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
               title="GPS Tracking"
               to="/gps"
-              icon={<GpsFixedIcon />}
+              icon={<ShareLocationOutlined />}
               selected={selected}
               setSelected={setSelected}
             />

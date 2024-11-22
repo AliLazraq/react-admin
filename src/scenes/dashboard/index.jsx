@@ -1,28 +1,24 @@
 import {
   Box,
   Button,
-  IconButton,
   Typography,
   useTheme,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
 } from "@mui/material";
 import { tokens } from "../../theme";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
-import EmailIcon from "@mui/icons-material/Email";
 import Header from "../../components/Header";
 import LineChart from "../../components/LineChart";
 import GPSMap from "../../components/GPSMap";
 import BarChart from "../../components/BarChart";
 import PieChart from "../../components/PieChart";
-import Odometer from "../../components/Odometer";
+import OdometerDisplay from "../../components/Odometer";
 import VehicleCount from "../../components/VehicleCount";
 import { useEffect, useState } from "react";
 import CarModel from "../../components/CarModel";
 import FuelTransactions from "../../components/FuelTransactions";
 import VehicleSelector from "../../components/VehicleSelector";
+import TrackerBarCharts from "../../components/TrackerBarCharts";
+import DownloadButton from "../../components/DownloadButton";
 
 const Dashboard = () => {
   const theme = useTheme();
@@ -45,6 +41,7 @@ const Dashboard = () => {
   }, [selectedVehicle]);
 
   return (
+    <div id="dashboard">
     <Box m="20px">
       {/* HEADER */}
       <Box
@@ -72,18 +69,7 @@ const Dashboard = () => {
 
         {/* Download Button on the right */}
         <Box flex="1" textAlign="right">
-          <Button
-            sx={{
-              backgroundColor: colors.blueAccent[700],
-              color: colors.grey[100],
-              fontSize: "14px",
-              fontWeight: "bold",
-              padding: "10px 20px",
-            }}
-          >
-            <DownloadOutlinedIcon sx={{ mr: "10px" }} />
-            Download Reports
-          </Button>
+        <DownloadButton colors={colors} />
         </Box>
       </Box>
 
@@ -146,7 +132,7 @@ const Dashboard = () => {
           alignItems="center"
           justifyContent="flex-start"
         >
-          <Odometer selectedVehicle={selectedVehicle} />
+          <OdometerDisplay selectedVehicle={selectedVehicle} />
         </Box>
 
         {/* Total Distance */}
@@ -162,93 +148,48 @@ const Dashboard = () => {
         {/* ROW 2 */}
         <Box
           gridColumn="span 8"
-          gridRow="span 2"
+          gridRow="span 3"
           backgroundColor={colors.primary[400]}
           sx={{
-            overflow: "auto", // Enable scrolling
-            maxHeight: "400px", // Set a fixed maximum height for the container
-            borderRadius: "10px", // Optional: for better visuals
+
+            maxHeight: "550px",
+            borderRadius: "10px", 
           }}
         >
-          {/* Chart Title */}
-          {/* Chart Title */}
-          <Box
-            sx={{
-              display: "flex", // Flexbox to arrange items
-              justifyContent: "space-between", // Space between title and icon
-              alignItems: "center", // Center vertically
-              padding: "10px",
-              backgroundColor: colors.primary[400],
-              color: colors.grey[100],
-              borderRadius: "8px", // Optional: for rounded corners
-            }}
-          >
-            <Typography variant="h6" fontWeight="600">
+          {/* Fuel Logs Overview */}
+          
+          <Box height="300px">
+          <Typography variant="h6" fontWeight="600">
               Fuel Logs Overview
             </Typography>
-            <IconButton>
-              <DownloadOutlinedIcon
-                sx={{
-                  fontSize: "26px",
-                  color: colors.greenAccent[500],
-                }}
-              />
-            </IconButton>
-          </Box>
-
-          <Box
-            mt="0px"
-            p="0 30px"
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-          >
-            <Box></Box>
-          </Box>
-          <Box height="400px">
             <LineChart isDashboard={true} />
           </Box>
         </Box>
-
         {/* Fuel Transactions */}
-        <FuelTransactions selectedVehicle={selectedVehicle} />
+        <Box gridColumn="span 4" gridRow="span 3">
+          <FuelTransactions selectedVehicle={selectedVehicle} />
+        </Box>
 
         {/* ROW 3 */}
         <Box
           gridColumn="span 4"
           gridRow="span 2"
-          backgroundColor={colors.primary[400]}
-          p="30px"
+          backgroundColor={colors.primary[400]} 
         >
-          <Typography variant="h5" fontWeight="600">
-            Number of Devices
-          </Typography>
           <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            mt="25px"
+            sx={{
+              padding: "10px",
+              backgroundColor: colors.primary[400],
+              color: colors.grey[100],
+            }}
           >
-            {/* Active vs Inactive in one line */}
-            <Box display="flex" alignItems="center" sx={{ mt: "15px" }}>
-              <Typography variant="h5" color={colors.greenAccent[500]}>
-                Active
-              </Typography>
-              <Typography variant="h5" color="#ffffff" sx={{ ml: "5px" }}>
-                vs
-              </Typography>
-              <Typography
-                variant="h5"
-                color={colors.blueAccent[500]}
-                sx={{ ml: "5px" }}
-              >
-                Inactive
-              </Typography>
-            </Box>
-
-            <Typography>Includes extra misc expenditures and costs</Typography>
+            <Typography variant="h6" fontWeight="600">
+              Tracker Status
+            </Typography>
           </Box>
+          <TrackerBarCharts selectedVehicle={selectedVehicle} />
         </Box>
+
         <Box
           gridColumn="span 4"
           gridRow="span 2"
@@ -299,14 +240,13 @@ const Dashboard = () => {
           >
             GPS
           </Typography>
-          <Box height="200px" width="100%" overflow="hidden">
-            {" "}
-            {/* Constrain the height */}
+          <Box height="200px" width="100%" overflow="hidden" display="flex" justifyContent="center" alignItems="center" >
             <GPSMap isDashboard={true} />
           </Box>
         </Box>
       </Box>
     </Box>
+  </div>
   );
 };
 

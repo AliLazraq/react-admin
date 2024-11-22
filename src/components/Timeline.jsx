@@ -67,7 +67,7 @@ const loadingSx = {
     height: "22px",
     margin: "0 5px",
     borderRadius: "50%",
-    backgroundColor: "#ffffff",
+    backgroundColor: "#1976d2",
     animation: "bounce 1.2s infinite ease-in-out",
     "&:nth-of-type(1)": { animationDelay: "0s" },
     "&:nth-of-type(2)": { animationDelay: "0.2s" },

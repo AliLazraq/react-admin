@@ -82,12 +82,6 @@ const DistanceTraveledChart = () => {
     >
       {/* Vehicle Toggles */}
       <Box sx={{ display: "flex", flexDirection: "column" }}>
-        <Typography
-          variant="h6"
-          sx={{ color: colors.grey[100], marginBottom: "10px" }}
-        >
-          Vehicles
-        </Typography>
         <FormGroup>
           {Object.keys(visibleVehicles).map((vehicle, index) => (
             <FormControlLabel

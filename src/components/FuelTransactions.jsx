@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, CircularProgress, useTheme } from "@mui/material";
-import { fetchFuelLogsById, fetchFuelLogs } from "../api/dataService"; 
+import { fetchFuelLogsById, fetchFuelLogs } from "../api/dataService";
 import { tokens } from "../theme";
 
 const FuelTransactions = ({ selectedVehicle }) => {
@@ -27,15 +27,15 @@ const FuelTransactions = ({ selectedVehicle }) => {
       // Reverse the data array to show the latest transactions first
       const reversedData = data.reverse();
 
-      // Extract the relevant fields from each log
-      const logEntries = reversedData.map((log) => ({
+      // Extract the relevant fields and take only the last 5 transactions
+      const logEntries = reversedData.slice(0, 5).map((log) => ({
         fuelAmount: log.fuelAmount,
         fuelCost: log.fuelCost,
         date: log.date,
         location: log.location,
       }));
 
-      setLogs(logEntries); // Save the logs to state
+      setLogs(logEntries); // Save the last 5 logs to state
     } catch (error) {
       console.error("Error fetching fuel logs:", error);
     } finally {
@@ -45,7 +45,7 @@ const FuelTransactions = ({ selectedVehicle }) => {
 
   useEffect(() => {
     getFuelLogs();
-  }, [selectedVehicle]); 
+  }, [selectedVehicle]);
 
   return (
     <Box
