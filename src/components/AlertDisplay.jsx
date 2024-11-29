@@ -51,7 +51,7 @@ const AlertDisplay = () => {
       console.log("Delete All Alerts button clicked");
       const response = await deleteAllAlerts();
       console.log("Backend response:", response);
-      setAlerts([]); // Clear alerts from state
+      setAlerts([]); 
       alert("All breach alerts have been deleted.");
     } catch (error) {
       console.error(

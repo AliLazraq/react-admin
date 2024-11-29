@@ -2,9 +2,8 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 
 const SingleBarChart = ({ operationType, value, maxRange }) => {
-  // Convert overdue value to positive for display purposes
-  const displayedValue = Math.abs(value);
-  const percentage = (displayedValue / maxRange) * 100; // Calculate the percentage to fill
+  const percentage = (Math.abs(value) / maxRange) * 100; // Calculate the percentage to fill
+  const isEmpty = value === 0;
 
   return (
     <Box
@@ -13,15 +12,15 @@ const SingleBarChart = ({ operationType, value, maxRange }) => {
         alignItems: "center",
         justifyContent: "space-between",
         padding: "10px 0",
-        gap: "10px", // Uniform spacing
+        gap: "10px",
       }}
     >
       {/* Operation Type */}
       <Typography
         variant="h6"
         sx={{
-          flex: "0 0 180px", // Fixed width for consistent alignment
-          textAlign: "center", // Align text to the right
+          flex: "0 0 180px",
+          textAlign: "center",
           fontWeight: "normal",
         }}
       >
@@ -31,14 +30,14 @@ const SingleBarChart = ({ operationType, value, maxRange }) => {
       {/* Bar Container */}
       <Box
         sx={{
-          flex: "1 1 auto", // Allow the bar to stretch
+          flex: "1 1 auto",
           position: "relative",
-          height: "30px", // Adjust bar height
+          height: "30px",
           background: `linear-gradient(to right, ${
-            value < 0 ? "#f47560" : "#61cdbb"
-          } ${percentage}%, #e0e0e0 ${percentage}%)`, // Gradient to fill the proportion
-          borderRadius: "5px", // Rounded corners for the bar
-          overflow: "hidden", // Ensure no overflow beyond the container
+            isEmpty ? "#e0e0e0" : value < 0 ? "#f47560" : "#61cdbb"
+          } ${isEmpty ? "0%" : `${percentage}%`}, #e0e0e0 ${percentage}%)`,
+          borderRadius: "5px",
+          overflow: "hidden",
         }}
       >
         {/* Value Label */}
@@ -50,10 +49,10 @@ const SingleBarChart = ({ operationType, value, maxRange }) => {
             transform: "translateY(-50%)",
             fontSize: "14px",
             fontWeight: "bold",
-            color: "#000000", // Black text for better visibility
+            color: "#000000",
           }}
         >
-          {value < 0 ? `Overdue: ${displayedValue} !!!` : `Remaining: ${displayedValue}`}
+          {isEmpty ? "Empty: Select a Vehicle!" : value < 0 ? `Overdue: ${Math.abs(value)}!` : `Remaining: ${Math.abs(value)}`}
         </Typography>
       </Box>
 
@@ -61,8 +60,8 @@ const SingleBarChart = ({ operationType, value, maxRange }) => {
       <Typography
         variant="body2"
         sx={{
-          flex: "0 0 100px", // Fixed width for consistent alignment
-          textAlign: "left", // Align text to the left
+          flex: "0 0 100px",
+          textAlign: "left",
           fontWeight: "bold",
         }}
       >

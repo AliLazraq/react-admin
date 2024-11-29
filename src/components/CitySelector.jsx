@@ -78,7 +78,7 @@ const CitySelector = () => {
 
   return (
     <Box p={3}>
-      <FormControl fullWidth margin="normal">
+      <FormControl fullWidth margin="normal" variant="filled" sx={{ m: 1, minWidth: 120 }}>
         <InputLabel>Select City</InputLabel>
         <Select value={selectedCity} onChange={handleCityChange}>
           {cities.map((city) => (
@@ -89,10 +89,10 @@ const CitySelector = () => {
         </Select>
       </FormControl>
 
-      <FormControl fullWidth margin="normal">
+      <FormControl fullWidth margin="normal" variant="filled" sx={{ m: 1, minWidth: 120 }} >
         <InputLabel>Select Vehicle</InputLabel>
         <Select value={selectedVehicle} onChange={handleVehicleChange}>
-          {vehicles.map((vehicle) => (
+        {vehicles.map((vehicle) => (
             <MenuItem
               key={vehicle.vehicleId}
               value={`${vehicle.vehicleId} ${vehicle.make} (${vehicle.plateNumber})`}
@@ -103,16 +103,26 @@ const CitySelector = () => {
         </Select>
       </FormControl>
 
+      
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end", 
+          padding: "16px", 
+        }}
+      >
       <Button
         variant="contained"
         color="secondary"
         onClick={() => {
-          handleCheckBreach(); // Call your existing function
-          window.location.reload(); // Reload the page
+          handleCheckBreach(); 
+          window.location.reload(); 
         }}
       >
         Check Geofence Breach
       </Button>
+    </Box>
+
     </Box>
   );
 };

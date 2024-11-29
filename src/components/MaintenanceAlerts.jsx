@@ -28,16 +28,10 @@ const MaintenanceAlerts = () => {
   const [formData, setFormData] = useState({
     operationType: "",
     price: "",
+    nextThreshold: "",
   });
 
   const theme = useTheme(); // Access the current theme
-
-  // Thresholds for operations
-  const thresholds = {
-    "Oil Change": 10000,
-    "Tires Change": 50000,
-    "Distribution Chain Change": 150000,
-  };
 
   // Fetch trackers by vehicle id
   const fetchTrackers = async (vehicleId) => {
@@ -75,7 +69,7 @@ const MaintenanceAlerts = () => {
   // Handle Maintenance Submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.operationType || !formData.price) {
+    if (!formData.operationType || !formData.price || !formData.nextThreshold) {
       alert("Please fill in all fields!");
       return;
     }
@@ -84,6 +78,7 @@ const MaintenanceAlerts = () => {
       const payload = {
         operationType: formData.operationType,
         price: parseFloat(formData.price),
+        nextThreshold: parseInt(formData.nextThreshold), // Parse next threshold as an integer
         maintenanceDate: new Date().toISOString(),
       };
 
@@ -94,13 +89,7 @@ const MaintenanceAlerts = () => {
 
       alert("Maintenance record added successfully!");
 
-      // Update the threshold dynamically
-      if (formData.operationType in thresholds) {
-        thresholds[formData.operationType] =
-          currentOdometer + thresholds[formData.operationType];
-      }
-
-      setFormData({ operationType: "", price: "" });
+      setFormData({ operationType: "", price: "", nextThreshold: "" });
     } catch (error) {
       console.error("Error submitting maintenance record:", error);
       alert("Failed to add maintenance record.");
@@ -117,8 +106,6 @@ const MaintenanceAlerts = () => {
 
   return (
     <Box sx={{ padding: "20px" }}>
-
-
       {/* Vehicle Selector */}
       <VehicleSelector
         selectedVehicle={selectedVehicle}
@@ -127,7 +114,7 @@ const MaintenanceAlerts = () => {
       />
 
       {/* Display Alerts */}
-      <Grid container spacing={3}>
+      <Grid container spacing={3} mt={2}>
         {["Oil Change", "Tires Change", "Distribution Chain Change"].map(
           (operation) => {
             // find corresponding tracker
@@ -194,8 +181,8 @@ const MaintenanceAlerts = () => {
           >
             <form onSubmit={handleSubmit}>
               <Grid container spacing={2}>
-                <Grid item xs={12} md={6}>
-                  <FormControl fullWidth>
+                <Grid item xs={12} md={4}>
+                  <FormControl fullWidth variant="filled" sx={{ minWidth: 120 }}>
                     <InputLabel>Operation Type</InputLabel>
                     <Select
                       name="operationType"
@@ -211,11 +198,21 @@ const MaintenanceAlerts = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={4}>
                   <TextField
                     name="price"
                     label="Price"
                     value={formData.price}
+                    onChange={handleInputChange}
+                    fullWidth
+                    type="number"
+                  />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    name="nextThreshold"
+                    label="Next Threshold (km)"
+                    value={formData.nextThreshold}
                     onChange={handleInputChange}
                     fullWidth
                     type="number"

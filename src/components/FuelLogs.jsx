@@ -14,7 +14,7 @@ import {
   TablePagination,
   TableSortLabel,
   useTheme,
-  FormControl,
+  FormControl, 
   InputLabel,
   Select,
   MenuItem,
@@ -45,6 +45,17 @@ const FuelLogForm = () => {
     }
   };
 
+  // Function to get the latest odometer value for the selected vehicle
+  const getLastOdometerValue = () => {
+    if (!selectedVehicle) return 0;
+
+    const lastLog = fuelLogs
+      .filter((log) => log.vehicleId === selectedVehicle)
+      .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+
+    return lastLog ? lastLog.odometer : 0;
+  };
+
   useEffect(() => {
     fetchFuelLogs();
   }, []);
@@ -68,6 +79,14 @@ const FuelLogForm = () => {
       if (lastLog && values.odometer <= lastLog.odometer) {
         alert(
           `Odometer value must be greater than the previous value (${lastLog.odometer}).`
+        );
+        return;
+      }
+
+      const lastOdometerValue = getLastOdometerValue();
+      if (values.odometer <= lastOdometerValue) {
+        alert(
+          `Odometer value must be greater than the previous value (${lastOdometerValue}).`
         );
         return;
       }
@@ -173,7 +192,7 @@ const FuelLogForm = () => {
               <TextField
                 fullWidth
                 variant="filled"
-                label="Fuel Cost"
+                label="Fuel Cost Per Liter"
                 name="fuel_cost"
                 value={values.fuel_cost}
                 onChange={handleChange}

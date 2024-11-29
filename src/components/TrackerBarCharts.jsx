@@ -14,9 +14,19 @@ const TrackerBarCharts = ({ selectedVehicle }) => {
     "Distribution Chain Change": 150000,
   };
 
+  const emptyData = Object.keys(operationMaxRanges).map((operation) => ({
+    operationType: operation,
+    value: 0,
+    maxRange: operationMaxRanges[operation],
+  }));
+
   useEffect(() => {
     const fetchData = async () => {
-      if (!selectedVehicle) return;
+      if (!selectedVehicle) {
+        setTrackerData(emptyData); // Use empty progress bars
+        setLoading(false);
+        return;
+      }
 
       setLoading(true);
       try {
@@ -32,30 +42,10 @@ const TrackerBarCharts = ({ selectedVehicle }) => {
     fetchData();
   }, [selectedVehicle]);
 
-  if (!selectedVehicle) {
-    return (
-      <Box sx={{ padding: "20px" }}>
-        <Typography variant="h6">
-          Please select a vehicle to view tracker details.
-        </Typography>
-      </Box>
-    );
-  }
-
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
         <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (trackerData.length === 0) {
-    return (
-      <Box sx={{ padding: "20px" }}>
-        <Typography variant="body1">
-          No tracker data available for this vehicle.
-        </Typography>
       </Box>
     );
   }
@@ -67,7 +57,7 @@ const TrackerBarCharts = ({ selectedVehicle }) => {
           key={item.operationType}
           operationType={item.operationType}
           value={item.value}
-          maxRange={operationMaxRanges[item.operationType] || 10000} // Default to 10000 if not defined
+          maxRange={item.maxRange || operationMaxRanges[item.operationType]} // Default to operationMaxRanges if maxRange is undefined
         />
       ))}
     </Box>

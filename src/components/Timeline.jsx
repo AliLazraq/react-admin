@@ -29,22 +29,19 @@ const fetchDeviceData = async (deviceId) => {
 };
 
 const fetchAddressFromCoordinates = async (latitude, longitude) => {
-    const apiUrl = `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=jsonv2`;
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Delay to respect rate limits
-      const response = await axios.get(apiUrl, {
-        headers: { "User-Agent": "MyApp/4 (example@example.com)" },
-      });
-      const address = response.data.address;
-      return address
-        ? `${address.road || "Unknown Road"}, ${address.city || "Unknown City"}, ${address.country || "Unknown Country"}`
-        : "Unknown Location";
-    } catch (error) {
-      console.error("Error fetching address:", error.response?.data || error.message);
-      return "Unknown Location";
-    }
-  };
-  
+  const apiUrl = `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=jsonv2`;
+  try {
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Delay to respect rate limits
+    const response = await axios.get(apiUrl); // Removed the User-Agent header
+    const address = response.data.address;
+    return address
+      ? `${address.road || "Unknown Road"}, ${address.city || "Ifrane"}, ${address.country || "Unknown Country"}`
+      : "Unknown Location";
+  } catch (error) {
+    console.error("Error fetching address:", error.response?.data || error.message);
+    return "Unknown Location";
+  }
+};
 
 const fetchVehicleInfo = async (vehicleId) => {
   try {

@@ -19,6 +19,7 @@ import FuelTransactions from "../../components/FuelTransactions";
 import VehicleSelector from "../../components/VehicleSelector";
 import TrackerBarCharts from "../../components/TrackerBarCharts";
 import DownloadButton from "../../components/DownloadButton";
+import axios from "axios";
 
 const Dashboard = () => {
   const theme = useTheme();
@@ -39,6 +40,41 @@ const Dashboard = () => {
       localStorage.setItem("selectedVehicle", selectedVehicle);
     }
   }, [selectedVehicle]);
+
+
+
+  useEffect(() => {
+    const fetchProtectedData = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          console.error("No token found in localStorage!");
+          return;
+        }
+
+        console.log("I AM TOKEN", token);
+
+        const response = await axios.get(
+          `http://localhost:8080/api/vehicles`, 
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // Add token to Authorization header
+            },
+          }
+        );
+    
+        console.log("Protected data:", response.data);
+      } catch (error) {
+        console.error("Failed to fetch protected data:", error.response?.data || error.message);
+      }
+    };
+    
+    console.log("Hello...");
+    // Call this function manually from your component to test
+    fetchProtectedData();
+  }, []);
+  
+  
 
   return (
     <div id="dashboard">

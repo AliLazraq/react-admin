@@ -43,31 +43,29 @@ const SidebarComponent = () => {
 
   return (
     <Box
-      sx={{
-        display: "flex",
-        height: "100vh", // Ensure the sidebar spans the entire viewport height
-        "& .ps-sidebar-container": {
-          background: colors.primary[400],
-          height: "100%",
-        },
-        "& .ps-menu-button:hover": {
-          background: `${colors.primary[400]} !important`,
-        },
-        "& .pro-icon-wrapper": {
-          backgroundColor: "transparent !important",
-        },
-        "& .pro-inner-item": {
-          padding: "5px 35px 5px 20px !important",
-        },
-        "& .pro-inner-item:hover": {
-          color: `${colors.primary[500]} !important`,
-        },
-        "& .pro-menu-item.active": {
-          color: "#6870fa !important",
-        },
-      }}
+    sx={{
+      zIndex: 1000,
+      "& .ps-sidebar-container": {
+        background: colors.primary[400],
+      },
+      "& .ps-menu-button:hover": {
+        background: `${colors.primary[400]} !important`,
+      },
+      "& .pro-icon-wrapper": {
+        backgroundColor: "transparent !important",
+      },
+      "& .pro-inner-item": {
+        padding: "5px 35px 5px 20px !important",
+      },
+      "& .pro-inner-item:hover": {
+        color: `${colors.primary[500]} !important`,
+      },
+      "& .pro-menu-item.active": {
+        color: "#6870fa !important",
+      },
+    }}
     >
-      <Sidebar collapsed={isCollapsed} style={{ height: "100%" }}>
+      <Sidebar collapsed={isCollapsed} >
         <Menu iconShape="square">
           {/* LOGO AND MENU ICON */}
           <MenuItem
@@ -136,35 +134,6 @@ const SidebarComponent = () => {
               color={colors.grey[300]}
               sx={{ m: "15px 0 5px 20px" }}
             >
-              Data
-            </Typography>
-            <Item
-              title="Manage Team"
-              to="/team"
-              icon={<PeopleOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Maintenance"
-              to="/maintenance"
-              icon={<EngineeringOutlined />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Price Prediction"
-              to="/prediction"
-              icon={<LocalAtmOutlined />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-
-            <Typography
-              variant="h8"
-              color={colors.grey[300]}
-              sx={{ m: "15px 0 5px 20px" }}
-            >
               Pages
             </Typography>
             <Item
@@ -182,9 +151,9 @@ const SidebarComponent = () => {
               setSelected={setSelected}
             />
             <Item
-              title="FAQ Page"
-              to="/faq"
-              icon={<HelpOutlineOutlinedIcon />}
+              title="Maintenance"
+              to="/maintenance"
+              icon={<EngineeringOutlined />}
               selected={selected}
               setSelected={setSelected}
             />
@@ -217,6 +186,15 @@ const SidebarComponent = () => {
               selected={selected}
               setSelected={setSelected}
             />
+
+<Typography
+              variant="h8"
+              color={colors.grey[300]}
+              sx={{ m: "15px 0 5px 20px" }}
+            >
+              Data
+            </Typography>
+            
             <Item
               title="GPS Tracking"
               to="/gps"
@@ -224,6 +202,14 @@ const SidebarComponent = () => {
               selected={selected}
               setSelected={setSelected}
             />
+            <Item
+              title="Price Prediction"
+              to="/prediction"
+              icon={<LocalAtmOutlined />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            
           </Box>
         </Menu>
       </Sidebar>

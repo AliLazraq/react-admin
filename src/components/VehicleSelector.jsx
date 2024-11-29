@@ -19,7 +19,7 @@ const VehicleSelector = ({ selectedVehicle, setSelectedVehicle, sx }) => {
   
     return (
     <Box>
-      <FormControl fullWidth sx={sx} >
+      <FormControl fullWidth  variant="filled" sx={{  minWidth: 120 }}>
         <InputLabel>Select Vehicle</InputLabel>
         <Select
           value={selectedVehicle || ""} // Ensure the value is controlled

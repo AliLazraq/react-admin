@@ -1,50 +1,81 @@
-//I still can't see team management on the dashboard
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { ColorModeContext, useMode } from "./theme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
-import { Routes, Route } from "react-router-dom";
-import Topbar from "./scenes/global/Topbar";
-import Sidebar from "./scenes/global/Sidebar";
+
+import LoginPage from "./components/Authentication/LoginPage";
+import RegistrationPage from "./components/Authentication/RegistrationPage";
 import Dashboard from "./scenes/dashboard";
-import Team from "./scenes/team";
+import Sidebar from "./scenes/global/Sidebar";
+import Topbar from "./scenes/global/Topbar";
 import Maintenance from "./scenes/maintenance";
 import Predictions from "./scenes/prediction";
-import Bar from "./scenes/bar";
 import Form from "./scenes/form";
 import Line from "./scenes/line";
 import Progress from "./scenes/progress";
-import FAQ from "./scenes/faq";
+import Bar from "./scenes/bar";
 import Geofence from "./scenes/geofence";
 import GPS from "./scenes/gps";
 
-function App() {
+const App = () => {
   const { colorMode, theme } = useMode();
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    !!localStorage.getItem("authToken")
+  );
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem("authToken");
+  };
+
   return (
-    <ColorModeContext.Provider value={colorMode}> 
+    <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <div className="app">
-          <Sidebar />
-          <main className="content">
-            <Topbar />
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/team" element={<Team />} />
-              <Route path="/maintenance" element={<Maintenance />} />
-              <Route path="/prediction" element={<Predictions />} />
-              <Route path="/form" element={<Form />} />
-              <Route path="/bar" element={<Line />} />
-              <Route path="/progress" element={<Progress />} />
-              <Route path="/line" element={<Bar />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/geofence" element={<Geofence />} />
-              <Route path="/gps" element={<GPS />} />
-            </Routes> 
-          </main>
-        </div>
+        <Router>
+          <div className="app"> 
+            {isAuthenticated && <Sidebar />}
+            <main className="content" style={{ flex: 1, overflowY: "auto" }}>
+              {isAuthenticated && <Topbar onLogout={handleLogout} />}
+              <Routes>
+                {/* Public Routes */}
+                {!isAuthenticated && (
+                  <>
+                    <Route
+                      path="/login"
+                      element={<LoginPage onLogin={handleLogin} />}
+                    />
+                    <Route path="/register" element={<RegistrationPage />} />
+                    <Route path="*" element={<Navigate to="/login" />} />
+                  </>
+                )}
+
+                {/* Protected Routes */}
+                {isAuthenticated && (
+                  <>
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/maintenance" element={<Maintenance />} />
+                    <Route path="/prediction" element={<Predictions />} />
+                    <Route path="/form" element={<Form />} />
+                    <Route path="/line" element={<Bar />} />
+                    <Route path="/progress" element={<Progress />} />
+                    <Route path="/bar" element={<Line />} />
+                    <Route path="/geofence" element={<Geofence />} />
+                    <Route path="/gps" element={<GPS />} />
+                    <Route path="*" element={<Navigate to="/dashboard" />} />
+                  </>
+                )}
+              </Routes>
+            </main>
+          </div>
+        </Router>
       </ThemeProvider>
     </ColorModeContext.Provider>
-
   );
-}
+};
 
 export default App;

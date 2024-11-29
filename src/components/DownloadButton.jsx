@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Box, Button } from "@mui/material";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
-import { tokens } from "../theme";
+import { ColorModeContext, tokens } from "../theme";
 
 const DownloadButton = ({ colors }) => {
+  const { toggleColorMode } = useContext(ColorModeContext); // Access color mode
+  const currentMode = toggleColorMode === "dark" ? "dark" : "light"; // Get the current mode
+
   // Function to handle PDF generation
   const handleDownload = async () => {
     const element = document.getElementById("dashboard"); // The element to capture
@@ -15,17 +18,24 @@ const DownloadButton = ({ colors }) => {
     }
 
     try {
+      // Explicitly set a dark background color if in dark mode
+      if (currentMode === "dark") {
+        element.style.backgroundColor = "#141b2d"; // Dark mode background color
+        element.style.color = "#ffffff"; // Adjust text to white for visibility
+      }
+
       // Capture the element as an image
       const canvas = await html2canvas(element, {
         useCORS: true, // Ensures cross-origin charts (e.g., Nivo) are captured
         allowTaint: true,
         scrollY: -window.scrollY, // Capture the entire viewport even when scrolled
+        backgroundColor: currentMode === "dark" ? "#141b2d" : "#ffffff", // Dynamic background
       });
 
       const imgData = canvas.toDataURL("image/png"); // Convert to image data
-      const pdf = new jsPDF("p", "mm", "a4"); // Initialize jsPDF
+      const pdf = new jsPDF("landscape", "mm", "a4"); // Initialize jsPDF in landscape mode
 
-      // Scale the canvas to fit the A4 size
+      // Scale the canvas to fit the landscape A4 size
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 

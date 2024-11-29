@@ -1,12 +1,5 @@
 import { ResponsiveLine } from "@nivo/line";
-import {
-  Box,
-  Checkbox,
-  FormControlLabel,
-  FormGroup,
-  useTheme,
-  Typography,
-} from "@mui/material";
+import { Box, Typography, useTheme, Select, MenuItem } from "@mui/material";
 import { tokens } from "../theme";
 import { useState, useEffect } from "react";
 import { fetchVehicleFuelLogs } from "../api/dataService";
@@ -15,7 +8,7 @@ const DistanceTraveledChart = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [chartData, setChartData] = useState([]);
-  const [visibleVehicles, setVisibleVehicles] = useState({});
+  const [selectedVehicle, setSelectedVehicle] = useState("");
 
   // Color mapping for vehicle lines
   const lineColors = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3"]; // Add more colors if needed
@@ -25,13 +18,10 @@ const DistanceTraveledChart = () => {
       const vehicleFuelLogs = await fetchVehicleFuelLogs();
       const distanceData = createDistanceTraveledData(vehicleFuelLogs);
 
-      const initialVisibility = {};
-      distanceData.forEach(({ id }) => {
-        initialVisibility[id] = true; // Default: Show all vehicles
-      });
-
-      setVisibleVehicles(initialVisibility);
       setChartData(distanceData);
+      if (distanceData.length > 0) {
+        setSelectedVehicle(distanceData[0].id); // Set the first vehicle as selected
+      }
     };
     loadChartData();
   }, []);
@@ -66,53 +56,61 @@ const DistanceTraveledChart = () => {
     return vehicleData;
   };
 
-  const visibleData = chartData.filter((data) => visibleVehicles[data.id]);
+  const visibleData = chartData.filter((data) => data.id === selectedVehicle);
 
   return (
     <Box
       sx={{
         display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
+        flexDirection: "column",
         backgroundColor: colors.primary[400],
         padding: "20px",
         borderRadius: "10px",
       }}
     >
-      {/* Vehicle Toggles */}
-      <Box sx={{ display: "flex", flexDirection: "column" }}>
-        <FormGroup>
-          {Object.keys(visibleVehicles).map((vehicle, index) => (
-            <FormControlLabel
-              key={vehicle}
-              control={
-                <Checkbox
-                  checked={visibleVehicles[vehicle]}
-                  onChange={(e) =>
-                    setVisibleVehicles({
-                      ...visibleVehicles,
-                      [vehicle]: e.target.checked,
-                    })
-                  }
-                  sx={{
-                    color: visibleVehicles[vehicle]
-                      ? lineColors[index % lineColors.length]
-                      : colors.grey[400],
-                    "&.Mui-checked": { color: lineColors[index % lineColors.length] },
-                  }}
-                />
-              }
-              label={
-                <Typography sx={{ color: colors.grey[100] }}>{vehicle}</Typography>
-              }
-            />
+      {/* Vehicle Dropdown on Top */}
+      <Box
+        sx={{
+          marginTop: "7px",
+          marginBottom: "-9px",
+          display: "flex",
+          alignSelf: "flex-start", // Align dropdown to the left
+        }}
+      >
+        <Select
+          value={selectedVehicle}
+          onChange={(e) => setSelectedVehicle(e.target.value)}
+          displayEmpty
+          sx={{
+            color: colors.grey[100],
+            borderRadius: "5px",
+            fontSize: "0.8rem",
+            "& .MuiSelect-icon": {
+              color: colors.grey[100],
+            },
+            "& .MuiOutlinedInput-notchedOutline": {
+              borderColor: colors.grey[300],
+            },
+          }}
+        >
+          {chartData.map((vehicle, index) => (
+            <MenuItem
+              key={vehicle.id}
+              value={vehicle.id}
+              sx={{
+                color: lineColors[index % lineColors.length],
+                fontSize: "0.9rem",
+                fontWeight: "bold",
+              }}
+            >
+              {vehicle.id}
+            </MenuItem>
           ))}
-        </FormGroup>
+        </Select>
       </Box>
 
       {/* Line Chart */}
-      <Box style={{ height: "280px", width: "90%" }}>
+      <Box style={{ height: "240px", width: "100%" }}>
         {visibleData.length > 0 ? (
           <ResponsiveLine
             data={visibleData}
@@ -175,7 +173,9 @@ const DistanceTraveledChart = () => {
                 },
               },
             }}
-            colors={(d) => lineColors[chartData.findIndex((v) => v.id === d.id) % lineColors.length]}
+            colors={(d) =>
+              lineColors[chartData.findIndex((v) => v.id === d.id) % lineColors.length]
+            }
             pointSize={10}
             pointColor={colors.grey[900]}
             pointBorderWidth={2}
@@ -187,7 +187,7 @@ const DistanceTraveledChart = () => {
           />
         ) : (
           <Typography variant="h6" color="error" align="center">
-            No data available for the selected vehicles.
+            No data available for the selected vehicle.
           </Typography>
         )}
       </Box>
